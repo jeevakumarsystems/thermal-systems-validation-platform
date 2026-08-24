@@ -14,7 +14,7 @@ nodes and power levels.
 
 ## Objective
 
-Build a six-node thermal resistance network that predicts temperature behavior in a sealed electronics enclosure, and test whether a model that fits the data well can still be trusted parameter-by-parameter. The enclosure was instrumented, run through a 35-point experimental matrix at three power levels, and fit using nonlinear least-squares. The prediction accuracy turned out to be strong. However, three of six resistances couldn't be individually determined, even though the fit looked fine.
+Build a six-node thermal resistance network that predicts temperature behavior in a sealed electronics enclosure, and test whether a model that fits the data well can still be trusted parameter-by-parameter. The enclosure was instrumented, run through a 35-point experimental matrix at three power levels, and fit using nonlinear least-squares. The prediction accuracy turned out to be strong. However, three of six resistances couldn't be individually determined, despite an excellent fit.
 
 ---
 
