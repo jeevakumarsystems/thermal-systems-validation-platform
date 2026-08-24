@@ -4,36 +4,30 @@ A six-node lumped-parameter thermal network (LPTN) for a sealed
 electronics enclosure, with structured experimental validation across 
 a 35-run design-of-experiments matrix.
 
-**Central finding:** Three air-path convective resistances (R_pa, R_aw, 
-R_pw) are structurally unidentifiable from temperature data alone; 
-pairwise correlations are |r| ≈ 0.97–0.99 under synthetic validation. Three 
-parameters (R_hp, R_cond, R_ext) are well-identified. Despite parameter 
-non-uniqueness, per-node temperature prediction **RMSE ≈ 0.2°C** across all 
+**Central finding:** Two air-path convective resistances (R_pa, R_aw) are practically unidentifiable from temperature data alone; 
+one conductive resistance is configuration-dependent (R_pw); and three 
+parameters (R_hp, R_cond, R_ext) are well-identified. Per-node temperature prediction
+is below **RMSE = 1.54°C** across all 
 nodes and power levels.
-
-Biot number: **Bi = 8.99 × 10⁻⁵** — validates the lumped-capacitance 
-assumption.
 
 ---
 
 ## Objective
 
-Design, construct, instrument, and validate a predictive thermal 
-resistance network capable of modeling steady-state and transient 
-temperature behavior within ±0.2°C RMSE.
+Build a six-node thermal resistance network that predicts temperature behavior in a sealed electronics enclosure, and test whether a model that fits the data well can still be trusted parameter-by-parameter. The enclosure was instrumented, run through a 35-point experimental matrix at three power levels, and fit using nonlinear least-squares. The prediction accuracy turned out to be strong. However, three of six resistances couldn't be individually determined, even though the fit looked fine.
 
 ---
 
-## Hardware Overview
+## Overview
 
 The system is built around a sealed ABS enclosure with an aluminum 
 conduction plate mounted on standoffs at the base. Three resistive 
 heater modules (H1, H2, H3) sit on the plate — H2 at the geometric 
 center, H1 and H3 symmetrically offset along the long axis. Each 
 heater consists of two 15Ω cement wirewound resistors in series 
-(~30Ω, ~5W per heater at 12V).
+(~30Ω, ~5W per heater at 12V). H1, H2, or H3 alone runs at 5W; H1+H2 or H2+H3 gives 10W; all three gives 15W.
 
-Six NTC thermistors are mapped directly onto model nodes:
+I placed 6 calibrated NTC thermistors (T1–T6) at:
 
 | Sensor | Location |
 |--------|----------|
@@ -50,24 +44,6 @@ air-path resistances.
 
 ---
 
-## System Overview
-
-- 6 calibrated NTC thermistors (T1–T6)
-- 3-level controlled resistive heating (5W / 10W / 15W)
-- Sealed ABS enclosure with aluminum conduction plate
-- 35-run structured experimental matrix
-- 10,000+ logged data points
-
----
-
 ## Modeling Approach
 
-- Six-node lumped-capacitance resistance network
-- First-principles ODE derivation (energy balance per node)
-- Nonlinear least-squares parameter fitting (scipy, Radau stiff solver)
-- Jacobian-based uncertainty quantification via Moore-Penrose 
-  pseudoinverse covariance
-- Identifiability analysis: structural collinearity of air-path 
-  resistance cluster
-- Rolling-window steady-state detection (N = 1050 samples, 
-  ε = 0.2°C)
+Parameters were estimated using constrained nonlinear least squares. Practical identifiability was assessed using profile likelihood analysis and Markov Chain Monte Carlo (MCMC) analysis.
