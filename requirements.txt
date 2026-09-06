@@ -3,4 +3,4 @@ scipy>=1.10
 matplotlib>=3.7
 pandas>=2.0
 jupyter>=1.0
-pytese>=7.0
+pytest>=7.0
