@@ -47,3 +47,21 @@ air-path resistances.
 ## Modeling Approach
 
 Parameters were estimated using constrained nonlinear least squares. Practical identifiability was assessed using profile likelihood analysis and Markov Chain Monte Carlo (MCMC) analysis.
+
+
+---
+
+## Code
+
+The model, fitting pipeline, identifiability analysis, and MCMC cross-check live in `src/` as standalone, documented modules:
+
+- `src/thermal_model.py` — the six-node LPTN: ODE right-hand side, time-domain simulator, and closed-form steady-state solver.
+- `src/fitting.py` — fits `thermal_model` to a CSV run via constrained nonlinear least squares, writing one `fit_results.npz` per run.
+- `src/identifiability.py` — profile-likelihood identifiability analysis over each fitted parameter.
+- `src/mcmc_pipeline.py` — `emcee`-based MCMC sampling around a fit, as an independent cross-check on the profile-likelihood conclusions.
+
+`notebooks/01_full_walkthrough.ipynb` is a thin demo that imports these modules and runs the full pipeline end to end; it is not where the logic lives.
+
+Expected input format for `data_raw/`: one CSV per run, named `<run_id>_<heater config>_<power>W[_fan].csv` (e.g. `19_H1H2H3_15W.csv`), with columns `time_s, T1_C, T2_C, T3_C, T4_C, T5_C, T6_C`.
+
+**Note:** the 35-run data set and the RMSE/figures referenced above were produced on the original hardware and have not yet been committed to `data_raw/` and `figures/` in this repository — those folders are currently placeholders. Re-running `src/fitting.py` against the committed code reproduces the pipeline, but the specific numbers above aren't independently verifiable from this repo until the raw run data is added.
