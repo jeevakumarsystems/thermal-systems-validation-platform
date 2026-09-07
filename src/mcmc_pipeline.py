@@ -12,9 +12,17 @@ fitting pass, and that dict is not reproducible from the current pipeline.
 This version reads the same information (time, measured temperatures,
 ambient, power, fan state, best-fit parameters, residual sigma) from the
 canonical `fit_results.npz` artifact instead, so it works off the same
-source of truth as fitting.py and identifiability.py. The sampler
-configuration (32 walkers, flat box prior, 500-step test chain, 8000-step
-production chain) is unchanged from the original.
+source of truth as fitting.py and identifiability.py.
+
+Sampler size: the original exploration notebook used 32 walkers and an
+8000-step production chain, which is thorough but takes 30+ minutes on a
+typical machine -- long enough that someone re-running this repo for the
+first time could reasonably think it had hung. The defaults below (16
+walkers, 200-step test chain, 2500-step production chain) are a lighter
+"reproduce it yourself" setting, measured at roughly 5-6 minutes end to
+end; the qualitative cross-check this function exists for (tight vs.
+wide/flat posteriors) does not need the full chain length. For a
+publication-quality run, pass larger n_steps_production / edit NWALKERS.
 """
 
 import numpy as np
@@ -22,10 +30,15 @@ import numpy as np
 from thermal_model import NODE_WEIGHTS, PARAMETER_NAMES, simulate_model
 
 NDIM = 6
-NWALKERS = 32
-N_STEPS_TEST = 500
-N_STEPS_PRODUCTION = 8000
+NWALKERS = 16
+N_STEPS_TEST = 200
+N_STEPS_PRODUCTION = 2500
 LOWER_BOUND, UPPER_BOUND = 1e-4, 1000.0
+
+# Rough, machine-dependent cost per (step x walker) log-probability
+# evaluation, measured on a typical single core. Used only to print an
+# estimated runtime before the chain starts, so nobody thinks it's hung.
+SEC_PER_STEP_WALKER = 0.008
 
 
 def run_mcmc(fit_results_path, trace_plot_path=None, corner_plot_path=None,
@@ -54,6 +67,12 @@ def run_mcmc(fit_results_path, trace_plot_path=None, corner_plot_path=None,
     n_obs = resid_best.size
     sigma = np.sqrt(np.sum(resid_best**2) / (n_obs - NDIM))
     print(f"Estimated sigma (weighted residual RMS, dof-corrected): {sigma:.4f}")
+
+    est_seconds = (n_steps_test + n_steps_production) * NWALKERS * SEC_PER_STEP_WALKER
+    print(f"Runtime warning: this MCMC run is expected to take roughly "
+          f"{est_seconds / 60:.1f} minutes on a typical machine "
+          f"({NWALKERS} walkers x {n_steps_test + n_steps_production} steps). "
+          f"It is not hung if it takes a while -- this is normal.")
 
     initial_state = measured[0].copy()
 
